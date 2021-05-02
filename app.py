@@ -10,7 +10,7 @@ app = Flask(__name__)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 SECRET = "jcnabckydusja"
 UPLOAD_DIR = os.path.join(BASE_DIR,"static")
-API_BASE = "http://139.196.81.14"
+API_BASE = "http://139.196.81.14:7998"
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -18,13 +18,13 @@ def upload_file():
     token = request.headers.get("Authorization","")
 
     if token!=SECRET:
-        return jsonify({"error":"bad request"}),401
+        return jsonify({"error":"bad request","success":False}),200
 
     if 'file' not in request.files:
-        return jsonify({"error":"no file"}),400
+        return jsonify({"error":"no file", "success": False}),200
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"error":"no file"}),400
+        return jsonify({"error":"no file", "success":False}),200
     if file :
         if not os.path.exists(UPLOAD_DIR):
             os.makedirs(UPLOAD_DIR)
@@ -33,7 +33,7 @@ def upload_file():
         filename = random_string + filename 
         
         file.save(os.path.join(UPLOAD_DIR, filename))
-        return jsonify({"url":API_BASE + '/upload/'+filename}),200
+        return jsonify({"url":API_BASE + '/upload/'+filename,"success":True}),200
 
 @app.route('/upload/<filename>',methods=['GET'])
 def uploaded_file(filename):
